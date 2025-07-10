@@ -1,115 +1,165 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
+import Layout from '@/components/layout'
+import Link from 'next/link'
+import { useState, useEffect, useRef } from 'react'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// DROPDOWN COMPONENT (with outside click close)
+function Dropdown({ title, items }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  return (
+    <div className="relative flex-1" ref={ref}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full bg-[#32174d] text-white font-inter py-4 rounded-lg font-semibold hover:shadow-[0_0_10px_2px_#32174d] transition"
+        style={{ fontFamily: 'Inter, sans-serif', color: '#fff' }}
+      >
+        {title}
+      </button>
+
+      {open && (
+        <div className="absolute left-[5%] top-full mt-1 w-[90%] bg-[#32174d] rounded-md shadow-lg z-10">
+          {items.map((item, index) => (
+            <a
+              key={index}
+              href={item.href}
+              className="block px-4 py-2 text-sm font-inter hover:bg-[#d1a857] transition"
+              style={{ color: '#fff' }}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function Home() {
   return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              pages/index.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <Layout>
+      <div className="h-[12px]"></div>
+
+      {/* MAIN HERO + RIGHT CARDS */}
+      <section className="w-[60%] mx-auto">
+        <div className="flex gap-[10px]">
+          {/* LEFT: Forest Image */}
+          <div
+            className="w-[60%] rounded-lg shadow-md bg-cover bg-center h-[500px] flex items-start justify-center pt-[15px]"
+            style={{ backgroundImage: "url('/forest-circle.jpg')" }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <h1
+              className="text-[1.5rem] font-inter text-white text-center drop-shadow-xl px-4"
+              style={{ color: '#fff' }}
+            >
+              Welcome to Yellow Elm Ministries
+            </h1>
+          </div>
+
+          {/* RIGHT: 3 Linked Cards */}
+          <div className="w-[40%] h-[500px] flex flex-col gap-[10px]">
+            {/* Mission */}
+            <Link href="/mission" passHref legacyBehavior>
+              <a className="block h-[160px]">
+                <div
+                  className="w-full h-full bg-cover bg-center rounded-lg shadow-md flex items-center justify-center hover:scale-[1.03] hover:-translate-y-[2px] transition-transform duration-300 ease-in-out"
+                  style={{ backgroundImage: "url('/mission.png')" }}
+                >
+                  <span
+                    className="text-[1.25rem] font-inter text-center drop-shadow"
+                    style={{ color: '#fff' }}
+                  >
+                    Mission Statement
+                  </span>
+                </div>
+              </a>
+            </Link>
+
+            {/* Membership */}
+            <Link href="/membership" passHref legacyBehavior>
+              <a className="block h-[160px]">
+                <div
+                  className="w-full h-full bg-cover bg-center rounded-lg shadow-md flex items-center justify-center hover:scale-[1.03] hover:-translate-y-[2px] transition-transform duration-300 ease-in-out"
+                  style={{ backgroundImage: "url('/member.jpg')" }}
+                >
+                  <span
+                    className="text-[1.25rem] font-inter text-center drop-shadow"
+                    style={{ color: '#fff' }}
+                  >
+                    Become a Member
+                  </span>
+                </div>
+              </a>
+            </Link>
+
+            {/* Giving */}
+            <Link href="/coming-soon" passHref legacyBehavior>
+              <a className="block h-[160px]">
+                <div
+                  className="w-full h-full bg-cover bg-center rounded-lg shadow-md flex items-center justify-center hover:scale-[1.03] hover:-translate-y-[2px] transition-transform duration-300 ease-in-out"
+                  style={{ backgroundImage: "url('/giving.jpg')" }}
+                >
+                  <span
+                    className="text-[1.25rem] font-inter text-center drop-shadow"
+                    style={{ color: '#fff' }}
+                  >
+                    Giving
+                  </span>
+                </div>
+              </a>
+            </Link>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      </section>
+
+      {/* DROPDOWN BUTTON ROW */}
+      <section className="w-[60%] mx-auto mt-[10px]">
+        <div className="flex justify-between gap-[10px]">
+          {/* Education Dropdown */}
+          <Dropdown
+            title="Education & Counseling"
+            items={[
+              { label: 'YouTube Meditation Series', href: '/coming-soon' },
+              { label: 'Online Classes', href: '/coming-soon' },
+              { label: 'On Site Classes', href: '/coming-soon' },
+              { label: 'Clergy Counseling', href: '/coming-soon'},
+            ]}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+
+          {/* Sacred Circle */}
+          <Dropdown
+            title="Sacred Circle"
+            items={[
+              { label: 'Meeting Calendar', href: '/coming-soon' },
+              { label: 'Special Events', href: '/coming-soon' },
+              { label: 'Retreats', href: '/coming-soon' },
+            ]}
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+
+          {/* Let's Connect */}
+          <Dropdown
+            title="Let's Connect"
+            items={[
+              { label: 'Join the Ministry', href: '/membership' },
+              { label: 'Join the Mailing List', href: '/mailinglist' },
+              { label: 'Volunteer Opportunities', href: '/coming-soon' },
+              { label: 'Media Request', href: '/coming-soon' },
+            ]}
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+        </div>
+      </section>
+    </Layout>
+  )
 }
