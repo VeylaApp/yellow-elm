@@ -60,7 +60,7 @@ export default function MailingListSignup() {
 
         {submitted ? (
           <p className="text-green-700 text-center text-lg">
-            Thank you for signing up! You'll start receiving updates soon.
+            Thank you for signing up! You will start receiving updates soon.
           </p>
         ) : (
           <form className="space-y-6" onSubmit={handleSubmit}>
