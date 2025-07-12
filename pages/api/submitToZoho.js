@@ -1,5 +1,7 @@
 // pages/api/submitToZoho.js
 
+require('dotenv').config(); // Make sure this is at the very top
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
@@ -25,10 +27,18 @@ export default async function handler(req, res) {
   } = req.body;
 
   try {
-    const refreshToken = '1000.bcbc8e54e64e8c6bff9a842ffd6feb86.7bfc322d944c42e667b54b34488b3172';
-    const clientId = '1000.XSUGYKLW3MEUVGRXEICK4B5YW9ZTST';
-    const clientSecret = 'b95ce747a7cacad24a281e24e1fe4345a3a4c80f3d';
+    // --- CORRECTED: Using ZOHO_ instead of ZCRM_ ---
+    const refreshToken = process.env.ZOHO_REFRESH_TOKEN;
+    const clientId = process.env.ZOHO_CLIENT_ID;
+    const clientSecret = process.env.ZOHO_CLIENT_SECRET;
 
+    // --- Validate that environment variables are loaded ---
+    if (!refreshToken || !clientId || !clientSecret) {
+      console.error('Missing Zoho environment variables in API route.');
+      return res.status(500).json({ message: 'Server configuration error: Zoho API credentials missing.' });
+    }
+
+    // 1. Get Access Token using Refresh Token
     const tokenResponse = await fetch('https://accounts.zoho.com/oauth/v2/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -41,8 +51,19 @@ export default async function handler(req, res) {
     });
 
     const tokenData = await tokenResponse.json();
+
+    // --- Added: Error check for token acquisition ---
+    if (!tokenResponse.ok || !tokenData.access_token) {
+      console.error('Failed to get Zoho Access Token:', tokenData);
+      return res.status(500).json({
+        message: 'Failed to authenticate with Zoho (could not get access token).',
+        details: tokenData,
+      });
+    }
+
     const accessToken = tokenData.access_token;
 
+    // 2. Prepare Contact Payload
     const contactPayload = {
       data: [
         {
@@ -74,10 +95,11 @@ export default async function handler(req, res) {
       trigger: ["workflow"],
     };
 
+    // 3. Submit Contact to Zoho CRM
     const response = await fetch('https://www.zohoapis.com/crm/v2/Contacts', {
       method: 'POST',
       headers: {
-        Authorization: `Zoho-oauthtoken ${accessToken}`,
+        Authorization: `Zoho-oauthtoken ${accessToken}`, // Using the obtained access token
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(contactPayload),
@@ -85,7 +107,7 @@ export default async function handler(req, res) {
 
     const zohoResult = await response.json();
 
-    if (!zohoResult.data || !zohoResult.data[0] || zohoResult.data[0].code !== 'SUCCESS') {
+    if (!response.ok || !zohoResult.data || !zohoResult.data[0] || zohoResult.data[0].code !== 'SUCCESS') {
       console.error('Zoho error response:', JSON.stringify(zohoResult, null, 2));
       return res.status(500).json({
         message: 'Zoho returned an error during contact creation.',
@@ -95,7 +117,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ message: 'Contact submitted to Zoho', result: zohoResult });
   } catch (err) {
-    console.error('Zoho API error:', err);
-    return res.status(500).json({ message: 'Zoho API integration failed', error: err });
+    console.error('Zoho API integration failed unexpectedly:', err);
+    return res.status(500).json({ message: 'Zoho API integration failed unexpectedly', error: err.message || 'Unknown error' });
   }
 }

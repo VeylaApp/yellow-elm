@@ -1,5 +1,3 @@
-// pages/api/addLead.js → Now adds directly to Contacts
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method Not Allowed" });
@@ -7,10 +5,20 @@ export default async function handler(req, res) {
 
   const { first_name, last_name, email } = req.body;
 
+  // Check for required secrets
+  const refreshToken = process.env.ZCRM_REFRESH_TOKEN;
+  const clientId = process.env.ZCRM_CLIENT_ID;
+  const clientSecret = process.env.ZCRM_CLIENT_SECRET;
+
+  if (!refreshToken || !clientId || !clientSecret) {
+    console.error("❌ Missing one or more required environment variables.");
+    return res.status(500).json({
+      message: "Server misconfiguration. API credentials missing.",
+    });
+  }
+
   try {
-    const refreshToken = "1000.bcbc8e54e64e8c6bff9a842ffd6feb86.7bfc322d944c42e667b54b34488b3172";
-    const clientId = "1000.XSUGYKLW3MEUVGRXEICK4B5YW9ZTST";
-    const clientSecret = "b95ce747a7cacad24a281e24e1fe4345a3a4c80f3d";
+    console.log("🔄 Requesting Zoho access token...");
 
     const tokenResponse = await fetch("https://accounts.zoho.com/oauth/v2/token", {
       method: "POST",
@@ -24,6 +32,12 @@ export default async function handler(req, res) {
     });
 
     const tokenData = await tokenResponse.json();
+    console.log("🪪 Token Response:", tokenData);
+
+    if (!tokenData.access_token) {
+      throw new Error("Access token not received.");
+    }
+
     const accessToken = tokenData.access_token;
 
     const contactPayload = {
@@ -41,6 +55,8 @@ export default async function handler(req, res) {
       trigger: ["workflow"],
     };
 
+    console.log("📤 Sending contact to Zoho...");
+
     const response = await fetch("https://www.zohoapis.com/crm/v2/Contacts", {
       method: "POST",
       headers: {
@@ -51,15 +67,18 @@ export default async function handler(req, res) {
     });
 
     const result = await response.json();
+    console.log("📬 Zoho CRM response:", result);
 
     if (result.data && result.data[0].code === "SUCCESS") {
       return res.status(200).json({ message: "Contact added to Zoho CRM." });
     } else {
-      console.error("Zoho error:", result);
-      return res.status(500).json({ message: "Failed to create contact in Zoho.", details: result });
+      return res.status(500).json({
+        message: "Failed to create contact in Zoho.",
+        details: result,
+      });
     }
   } catch (err) {
-    console.error("API error:", err);
-    return res.status(500).json({ message: "Server error", error: err });
+    console.error("💥 Zoho API error:", err);
+    return res.status(500).json({ message: "Server error", error: err.message });
   }
 }

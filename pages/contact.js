@@ -8,17 +8,44 @@ export default function ContactPage() {
 
   useEffect(() => {
     const handleCaptcha = () => {
-      window.hcaptcha.render("hcaptcha-container", {
-        sitekey: "6ae8f532-055e-4dec-9236-cb0e221e74d4",
-        callback: (token) => setCaptchaToken(token),
-      });
+      // Check if hCaptcha script is loaded.
+      // window.hcaptcha will be available once the script from the <script> tag executes.
+      if (window.hcaptcha && document.getElementById("hcaptcha-container")) {
+        window.hcaptcha.render("hcaptcha-container", {
+          sitekey: "6ae8f532-055e-4dec-9236-cb0e221e74d4",
+          callback: (token) => setCaptchaToken(token),
+        });
+      } else {
+        // If script isn't loaded yet, try again after a short delay or on window load.
+        // This is a fallback if the async script hasn't rendered immediately.
+        // For production, consider using next/script for better control.
+        window.onloadCallback = handleCaptcha; // Keeping for compatibility, but see below
+      }
     };
 
+    // If hCaptcha is already loaded (e.g., on fast refreshes), render immediately.
+    // Otherwise, attach to window.onloadCallback, which is called by the hCaptcha script
+    // when it finishes loading if 'onload=onloadCallback' is in the script URL.
+    // However, for Next.js, a simpler approach is to only run render if hcaptcha is available.
     if (window.hcaptcha) {
-      handleCaptcha();
+        handleCaptcha();
     } else {
-      window.onloadCallback = handleCaptcha;
+        // If window.hcaptcha is not yet available, and the script tag has onload=onloadCallback,
+        // it *will* eventually call this. But better to remove onload from script.
+        // For now, keeping your existing logic but advising to remove onload from script tag.
+        window.onloadCallback = handleCaptcha;
     }
+
+    // --- Cleanup function for useEffect ---
+    return () => {
+      if (window.hcaptcha && document.getElementById("hcaptcha-container")) {
+        window.hcaptcha.reset(); // Resets the captcha if the component unmounts
+      }
+      // Clean up the global onloadCallback if it was set by this component
+      if (window.onloadCallback === handleCaptcha) {
+        delete window.onloadCallback;
+      }
+    };
   }, []);
 
   const handleChange = (e) => {
@@ -32,6 +59,8 @@ export default function ContactPage() {
       return;
     }
 
+    setStatus("Sending message..."); // Give user feedback
+
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
@@ -39,8 +68,19 @@ export default function ContactPage() {
         body: JSON.stringify({ ...formData, "h-captcha-response": captchaToken }),
       });
       const result = await response.json();
-      setStatus(result.message);
+
+      if (response.ok) {
+        setStatus("Message sent successfully!");
+        setFormData({ name: "", email: "", message: "" }); // Clear form on success
+        if (window.hcaptcha) {
+          window.hcaptcha.reset(); // Reset hCaptcha on success
+        }
+        setCaptchaToken(null); // Clear captcha token
+      } else {
+        setStatus(result.message || "Failed to send message. Please try again.");
+      }
     } catch (err) {
+      console.error("Client-side form submission error:", err);
       setStatus("Something went wrong. Please try again later.");
     }
   };
@@ -94,7 +134,8 @@ export default function ContactPage() {
           </button>
           {status && <p className="text-center text-sm mt-2">{status}</p>}
         </form>
-        <script src="https://js.hcaptcha.com/1/api.js?onload=onloadCallback&render=explicit" async defer></script>
+        {/* IMPORTANT: Remove onload=onloadCallback&render=explicit from this script tag */}
+        <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
       </div>
     </Layout>
   );
