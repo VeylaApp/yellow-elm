@@ -8,9 +8,9 @@ export default async function handler(req, res) {
   const { first_name, last_name, email } = req.body;
 
   try {
-    const refreshToken = "1000.bcbc8e54e64e8c6bff9a842ffd6feb86.7bfc322d944c42e667b54b34488b3172";
-    const clientId = "1000.XSUGYKLW3MEUVGRXEICK4B5YW9ZTST";
-    const clientSecret = "b95ce747a7cacad24a281e24e1fe4345a3a4c80f3d";
+    const refreshToken = badkey;
+    const clientId = badkey;
+    const clientSecret = badkey;
 
     const tokenResponse = await fetch("https://accounts.zoho.com/oauth/v2/token", {
       method: "POST",
