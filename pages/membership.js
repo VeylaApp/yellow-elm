@@ -63,7 +63,7 @@ export default function MembershipForm() {
 
   return (
     <Layout>
-      <div className="w-[60%] mx-auto mt-6 mb-12 text-black pt-24">
+      <div className="w-[80%] mx-auto mt-6 mb-12 text-black pt-24">
         <h1 className="text-4xl font-header text-center mb-6">Join Yellow Elm Ministries</h1>
 
         <p className="mb-4 text-sm text-center">

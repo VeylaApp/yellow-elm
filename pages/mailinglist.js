@@ -55,7 +55,7 @@ export default function MailingListSignup() {
 
   return (
     <Layout>
-      <div className="w-[60%] mx-auto pt-24 text-black">
+      <div className="w-[80%] mx-auto pt-24 text-black">
         <h1 className="text-3xl font-header mb-6 text-center">Join Our Mailing List</h1>
 
         {submitted ? (

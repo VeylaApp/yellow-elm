@@ -3,7 +3,7 @@ import Layout from "../components/layout";
 export default function AboutUs() {
   return (
     <Layout>
-      <div className="w-[60%] mx-auto pt-6 text-black">
+      <div className="w-[80%] mx-auto pt-6 text-black">
         <h1 className="text-4xl font-header text-center mb-4">About Yellow Elm Ministries</h1>
 
         <div className="text-black">

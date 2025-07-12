@@ -3,7 +3,7 @@ import Layout from '@/components/layout'
 export default function Mission() {
   return (
     <Layout>
- <section className="w-[60%] mx-auto mt-[10px] text-[#32174d]">
+ <section className="w-[80%] mx-auto mt-[10px] text-[#32174d]">
   <h1 className="text-4xl font-inter mb-[15px] text-center">Our Mission</h1>
 
   <p className="text-lg font-inter leading-relaxed mb-[15px]">

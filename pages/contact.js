@@ -47,7 +47,7 @@ export default function ContactPage() {
 
   return (
     <Layout>
-      <div className="w-[60%] mx-auto pt-6 text-black">
+      <div className="w-[80%] mx-auto pt-6 text-black">
         <h1 className="text-4xl font-header text-center mb-6">Contact Us</h1>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>

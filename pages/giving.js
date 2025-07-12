@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function GivingPage() {
   return (
     <Layout>
-      <div className="w-[60%] mx-auto pt-24 text-black text-center">
+      <div className="w-[80%] mx-auto pt-24 text-black text-center">
         <h1 className="text-4xl font-header mb-6">Giving</h1>
 
         <p className="text-lg mb-4">

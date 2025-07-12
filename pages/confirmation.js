@@ -19,7 +19,7 @@ export default function ConfirmationPage() {
           }
         }
       `}</style>
-      <div className="print-area w-[60%] mx-auto mt-10 mb-12 text-black pt-6">
+      <div className="print-area w-[80%] mx-auto mt-10 mb-12 text-black pt-6">
         <h1 className="text-3xl font-header text-center mb-6">Thank You for Joining Yellow Elm Ministries</h1>
 
         <p className="mb-6 text-center">

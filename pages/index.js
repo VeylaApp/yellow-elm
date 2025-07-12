@@ -30,7 +30,9 @@ function Dropdown({ title, items }) {
       </button>
 
       {open && (
-        <div className="absolute left-[5%] top-full mt-1 w-[90%] bg-[#32174d] rounded-md shadow-lg z-10">
+  <div className="absolute top-full mt-1 bg-[#32174d] rounded-md shadow-lg z-[100] w-[calc(100%-6px)] left-1/2 -translate-x-1/2">
+
+
           {items.map((item, index) => (
             <a
               key={index}
@@ -53,7 +55,7 @@ export default function Home() {
       <div className="h-[12px]"></div>
 
       {/* MAIN HERO + RIGHT CARDS */}
-      <section className="w-[60%] mx-auto">
+      <section className="w-[80%] mx-auto">
         <div className="flex gap-[10px]">
           {/* LEFT: Forest Image */}
           <div
@@ -125,8 +127,9 @@ export default function Home() {
       </section>
 
       {/* DROPDOWN BUTTON ROW */}
-      <section className="w-[60%] mx-auto mt-[10px]">
-        <div className="flex justify-between gap-[10px]">
+      <section className="w-[80%] mx-auto mt-[10px]">
+        <div className="flex flex-wrap justify-between gap-[10px]">
+
           {/* Education Dropdown */}
           <Dropdown
             title="Education & Counseling"
