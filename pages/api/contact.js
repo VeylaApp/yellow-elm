@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     secure: true,
     auth: {
       user: "kellina@yellowelm.org",
-      pass: "NGgmKXauHWzh", // your app password
+      pass: REMOVESKEY, // your app password
     },
   });
 
