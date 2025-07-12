@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       response: captchaToken,
-      secret: "ES_edc9ba7dedea4a6ea4b1501ae6e8c335",
+      secret: "BADKEY",
     }),
   });
 
