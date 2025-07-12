@@ -1,3 +1,5 @@
+require('dotenv').config(); // Add this line
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method Not Allowed" });
@@ -6,9 +8,9 @@ export default async function handler(req, res) {
   const { first_name, last_name, email } = req.body;
 
   // Check for required secrets
-  const refreshToken = process.env.ZCRM_REFRESH_TOKEN;
-  const clientId = process.env.ZCRM_CLIENT_ID;
-  const clientSecret = process.env.ZCRM_CLIENT_SECRET;
+  const refreshToken = process.env.ZOHO_REFRESH_TOKEN;
+  const clientId = process.env.ZOHO_CLIENT_ID;
+  const clientSecret = process.env.ZOHO_CLIENT_SECRET;
 
   if (!refreshToken || !clientId || !clientSecret) {
     console.error("❌ Missing one or more required environment variables.");

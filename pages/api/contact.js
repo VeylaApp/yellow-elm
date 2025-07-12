@@ -1,81 +1,129 @@
-// /pages/api/contact.js
+import Layout from "../components/layout";
+import { useState } from "react"; // Removed useEffect as it's no longer strictly needed for direct onload
+import Script from "next/script"; // Import the Script component
 
-require('dotenv').config(); // ✅ IMPORTANT: Make absolutely sure this is the VERY FIRST LINE
+export default function ContactPage() {
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = useState(null);
+  const [captchaToken, setCaptchaToken] = useState(null);
 
-import nodemailer from "nodemailer";
-
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method Not Allowed" });
-  }
-
-  const { name, email, message, "h-captcha-response": captchaToken } = req.body;
-
-  // --- Validate environment variables for hCaptcha ---
-  if (!process.env.HCAPTCHA_SECRET_KEY) {
-    console.error('ERROR: HCAPTCHA_SECRET_KEY is not set in environment variables.');
-    return res.status(500).json({ message: "Server configuration error: hCaptcha secret key missing." });
-  }
-
-  // 1. Verify hCaptcha
-  try {
-    const captchaVerify = await fetch("https://hcaptcha.com/siteverify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        response: captchaToken,
-        secret: process.env.HCAPTCHA_SECRET_KEY, // ✅ Correctly using env var
-      }),
-    });
-
-    const captchaResult = await captchaVerify.json();
-    if (!captchaResult.success) {
-      console.warn('hCaptcha verification failed:', captchaResult); // Log details for debugging
-      return res.status(400).json({ message: "Captcha verification failed. Please try again." });
+  // Function to render hCaptcha once the script is loaded
+  const renderCaptcha = () => {
+    // Ensure hCaptcha is available and the container exists
+    if (window.hcaptcha && document.getElementById("hcaptcha-container")) {
+      window.hcaptcha.render("hcaptcha-container", {
+        sitekey: "6ae8f532-055e-4dec-9236-cb0e221e74d4", // Your public sitekey
+        callback: (token) => setCaptchaToken(token),
+        "expired-callback": () => setCaptchaToken(null), // Clear token if it expires
+      });
     }
-  } catch (captchaError) {
-    console.error("hCaptcha verification fetch error:", captchaError); // Catch network/fetch errors
-    return res.status(500).json({ message: "Captcha verification service error." });
-  }
+  };
 
-  // --- Validate environment variables for Zoho SMTP ---
-  if (!process.env.ZOHO_SMTP_USER || !process.env.ZOHO_SMTP_PASS) {
-    console.error('ERROR: ZOHO_SMTP_USER or ZOHO_SMTP_PASS not set in environment variables.');
-    return res.status(500).json({ message: "Server configuration error: Email credentials missing." });
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // 2. Set up Zoho SMTP
-  const transporter = nodemailer.createTransport({
-    host: "smtp.zoho.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.ZOHO_SMTP_USER, // ✅ Correctly using env var
-      pass: process.env.ZOHO_SMTP_PASS, // ✅ Correctly using env var
-    },
-  });
-
-  // 3. Build and send the message
-  try {
-    await transporter.sendMail({
-      from: '"Yellow Elm Contact Form" <kellina@yellowelm.org>', // Ensure this "from" email is configured in your Zoho Mail SMTP settings
-      to: "kellina@yellowelm.org",
-      subject: `New message from ${name}`,
-      text: `From: ${name} <${email}>\n\n${message}`,
-    });
-
-    return res.status(200).json({ message: "Message sent successfully!" });
-  } catch (error) {
-    console.error("Email send error:", error);
-    // ⚠️ IMPORTANT: Log the full error object from Nodemailer for debugging
-    // Nodemailer errors often have a 'code' or 'response' property with more details.
-    if (error.response) {
-      console.error("Nodemailer response:", error.response);
-    }
-    if (error.code) {
-      console.error("Nodemailer error code:", error.code);
+    // Ensure captcha is completed before submission
+    if (!captchaToken) {
+      alert("Please complete the hCaptcha.");
+      return;
     }
 
-    return res.status(500).json({ message: "Failed to send email. Please try again.", errorDetails: error.message });
-  }
+    const form = new FormData(e.target);
+    const data = Object.fromEntries(form.entries());
+    data["h-captcha-response"] = captchaToken; // Add the hCaptcha token to the form data
+
+    console.log("Captcha Token to be sent:", captchaToken);
+    console.log("Full data to be sent:", data);
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Submission failed: An unknown error occurred.");
+      }
+
+      setStatus("Message sent successfully!");
+      setFormData({ name: "", email: "", message: "" }); // Clear form fields
+      setCaptchaToken(null); // Reset captcha token
+      if (window.hcaptcha) {
+        window.hcaptcha.reset(); // Reset the hCaptcha widget for subsequent submissions
+      }
+    } catch (error) {
+      console.error("Contact form submission error:", error);
+      setStatus(`Submission failed: ${error.message}`);
+    }
+  };
+
+  return (
+    <Layout>
+      {/* The Script component from next/script handles loading the hCaptcha script.
+        The onLoad prop ensures renderCaptcha is called only when the script is fully loaded.
+      */}
+      <Script
+        src="https://js.hcaptcha.com/1/api.js"
+        async
+        defer
+        onLoad={renderCaptcha} // Call renderCaptcha when the script is loaded
+      />
+
+      <div className="flex flex-col items-center justify-center min-h-screen-75 bg-cover bg-center">
+        <h1 className="text-4xl font-bold text-green-forest mb-8">Contact Us</h1>
+
+        <form className="w-full max-w-lg space-y-6" onSubmit={handleSubmit}>
+          <div>
+            <label className="block mb-1">Name</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+              className="w-full bg-white border border-gold-aura rounded p-2"
+            />
+          </div>
+          <div>
+            <label className="block mb-1">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              required
+              className="w-full bg-white border border-gold-aura rounded p-2"
+            />
+          </div>
+          <div>
+            <label className="block mb-1">Message</label>
+            <textarea
+              name="message"
+              rows="6"
+              maxLength={1000}
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+              required
+              className="w-full bg-white border border-gold-aura rounded p-2"
+            ></textarea>
+            <p className="text-xs text-gray-600 mt-1">Max 1000 characters</p>
+          </div>
+
+          {/* hCaptcha container */}
+          <div id="hcaptcha-container" className="my-4"></div>
+
+          <button
+            type="submit"
+            className="bg-green-forest text-white px-6 py-2 rounded shadow-md border border-black hover:shadow-[0_0_10px_2px_#204e39]"
+          >
+            Send Message
+          </button>
+
+          {status && <p className="text-center text-sm mt-2">{status}</p>}
+        </form>
+      </div>
+    </Layout>
+  );
 }
