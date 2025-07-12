@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     port: 465,
     secure: true,
     auth: {
-      user: "kellina@yellowelm.org",
+      user: REMOVEINFO
       pass: REMOVESKEY, // your app password
     },
   });
