@@ -52,7 +52,12 @@ function Dropdown({ title, items }) {
 export default function Home() {
   return (
     <Layout>
-      <div className="h-[12px]"></div>
+      <div className="h-[.5px]"></div>
+
+<div className="w-full bg-purple-moon text-white text-center px-4 py-[10px] mb-[10px] text-sm tracking-wide">
+   Yellow Elm Ministries is a sacred, inclusive space for queer, trans, and spiritually sovereign beings. You are welcome here.
+</div>
+
 
       {/* MAIN HERO + RIGHT CARDS */}
       <section className="w-[80%] mx-auto">
@@ -162,6 +167,7 @@ export default function Home() {
             ]}
           />
         </div>
+        
       </section>
     </Layout>
   )

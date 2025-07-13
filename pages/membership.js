@@ -12,7 +12,7 @@ export default function MembershipForm() {
   useEffect(() => {
     const handleCaptcha = () => {
       window.hcaptcha.render("hcaptcha-container", {
-        sitekey: "6ae8f532-055e-4dec-9236-cb0e221e74d4",
+        sitekey: "a70ee3e8-03b6-498a-9638-de943de44c82",
         callback: (token) => setCaptchaToken(token),
       });
     };

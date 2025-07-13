@@ -12,7 +12,7 @@ export default function ContactPage() {
       // window.hcaptcha will be available once the script from the <script> tag executes.
       if (window.hcaptcha && document.getElementById("hcaptcha-container")) {
         window.hcaptcha.render("hcaptcha-container", {
-          sitekey: "6ae8f532-055e-4dec-9236-cb0e221e74d4",
+          sitekey: "a70ee3e8-03b6-498a-9638-de943de44c82",
           callback: (token) => setCaptchaToken(token),
         });
       } else {
@@ -135,7 +135,8 @@ export default function ContactPage() {
           {status && <p className="text-center text-sm mt-2">{status}</p>}
         </form>
         {/* IMPORTANT: Remove onload=onloadCallback&render=explicit from this script tag */}
-        <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+        <script src="https://js.hcaptcha.com/1/api.js?onload=onloadCallback&render=explicit" async defer></script>
+
       </div>
     </Layout>
   );

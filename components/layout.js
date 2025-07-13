@@ -68,7 +68,7 @@ export default function Layout({ children }) {
       {/* FIXED TRANSPARENT HEADER */}
       <header className="fixed top-0 left-0 w-full z-[100] bg-[#f8f5f2] bg-opacity-95 backdrop-blur">
         {/* Responsive Nav */}
-        <div className="w-full max-w-[1200px] mx-auto grid grid-cols-5 items-center py-4">
+        <div className="w-full max-w-[1200px] mx-auto grid grid-cols-5 items-center py-[5px]">
 
           <div className="flex justify-center md:justify-start">
             <Link href="/" className="block">
