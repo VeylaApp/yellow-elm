@@ -2,6 +2,7 @@ import Layout from "../components/layout";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import Head from "next/head"; // Required for GA script injection
 
 export default function MembershipForm() {
   const [volunteerChecked, setVolunteerChecked] = useState(false);
@@ -38,7 +39,7 @@ export default function MembershipForm() {
     data["h-captcha-response"] = captchaToken;
 
     try {
-      const response = await fetch('/api/submitToZoho', {
+      const response = await fetch('/api/emailMembershipForm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -63,14 +64,27 @@ export default function MembershipForm() {
 
   return (
     <Layout>
+      <Head>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-XXXXXXXXXX');
+            `,
+          }}
+        />
+      </Head>
+
       <div className="w-[80%] mx-auto mt-6 mb-12 text-black pt-24">
         <h1 className="text-4xl font-header text-center mb-6">Join Yellow Elm Ministries</h1>
 
         <p className="mb-4 text-sm text-center">
           Learn more about our <a href="/mission" target="_blank" rel="noopener noreferrer" className="underline text-purple-moon">Mission</a> and <a href="/statementfaith" target="_blank" rel="noopener noreferrer" className="underline text-purple-moon">Statement of Faith</a>.
-         </p>
-          <p>Membership is open to all who align with our values and wish to contribute to our community and is always free. 
         </p>
+        <p>Membership is open to all who align with our values and wish to contribute to our community and is always free.</p>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="flex flex-wrap justify-between gap-4">
@@ -206,7 +220,6 @@ export default function MembershipForm() {
             </div>
           </div>
 
-          {/* hCaptcha */}
           <div id="hcaptcha-container" className="my-4"></div>
 
           <button type="submit"

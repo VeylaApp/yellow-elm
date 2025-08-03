@@ -1,3 +1,4 @@
+import Head from "next/head";
 import Layout from "../components/layout";
 import { useState, useEffect } from "react";
 
@@ -7,10 +8,12 @@ export default function MailingListSignup() {
 
   useEffect(() => {
     const handleCaptcha = () => {
-      window.hcaptcha.render("hcaptcha-container", {
-        sitekey: "a70ee3e8-03b6-498a-9638-de943de44c82",
-        callback: (token) => setCaptchaToken(token),
-      });
+      if (window.hcaptcha && document.getElementById("hcaptcha-container")) {
+        window.hcaptcha.render("hcaptcha-container", {
+          sitekey: "a70ee3e8-03b6-498a-9638-de943de44c82",
+          callback: (token) => setCaptchaToken(token),
+        });
+      }
     };
 
     if (window.hcaptcha) {
@@ -54,45 +57,51 @@ export default function MailingListSignup() {
   };
 
   return (
-    <Layout>
-      <div className="w-[80%] mx-auto pt-24 text-black">
-        <h1 className="text-3xl font-header mb-6 text-center">Join Our Mailing List</h1>
+    <>
+      <Head>
+        <title>Join Our Mailing List | Yellow Elm Ministries</title>
+      </Head>
 
-        {submitted ? (
-          <p className="text-green-700 text-center text-lg">
-            Thank you for signing up! You will start receiving updates soon.
-          </p>
-        ) : (
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="flex flex-wrap justify-between gap-4">
-              <div className="w-[45%]">
-                <label className="block mb-1">First Name</label>
-                <input type="text" name="first_name" required className="w-full bg-white border border-gold-aura rounded p-2" />
+      <Layout>
+        <div className="w-[80%] mx-auto pt-24 text-black">
+          <h1 className="text-3xl font-header mb-6 text-center">Join Our Mailing List</h1>
+
+          {submitted ? (
+            <p className="text-green-700 text-center text-lg">
+              Thank you for signing up! You will start receiving updates soon.
+            </p>
+          ) : (
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <div className="flex flex-wrap justify-between gap-4">
+                <div className="w-[45%]">
+                  <label className="block mb-1">First Name</label>
+                  <input type="text" name="first_name" required className="w-full bg-white border border-gold-aura rounded p-2" />
+                </div>
+                <div className="w-[45%]">
+                  <label className="block mb-1">Last Name</label>
+                  <input type="text" name="last_name" required className="w-full bg-white border border-gold-aura rounded p-2" />
+                </div>
               </div>
-              <div className="w-[45%]">
-                <label className="block mb-1">Last Name</label>
-                <input type="text" name="last_name" required className="w-full bg-white border border-gold-aura rounded p-2" />
+
+              <div>
+                <label className="block mb-1">Email Address</label>
+                <input type="email" name="email" required className="w-full bg-white border border-gold-aura rounded p-2" />
               </div>
-            </div>
 
-            <div>
-              <label className="block mb-1">Email Address</label>
-              <input type="email" name="email" required className="w-full bg-white border border-gold-aura rounded p-2" />
-            </div>
+              <div id="hcaptcha-container" className="my-4"></div>
 
-            <div id="hcaptcha-container" className="my-4"></div>
+              <button
+                type="submit"
+                className="bg-green-forest text-white px-6 py-2 rounded shadow-md border border-black hover:shadow-[0_0_10px_2px_#204e39]"
+              >
+                Sign Up
+              </button>
+            </form>
+          )}
 
-            <button
-              type="submit"
-              className="bg-green-forest text-white px-6 py-2 rounded shadow-md border border-black hover:shadow-[0_0_10px_2px_#204e39]"
-            >
-              Sign Up
-            </button>
-          </form>
-        )}
-
-        <script src="https://js.hcaptcha.com/1/api.js?onload=onloadCallback&render=explicit" async defer></script>
-      </div>
-    </Layout>
+          <script src="https://js.hcaptcha.com/1/api.js?onload=onloadCallback&render=explicit" async defer></script>
+        </div>
+      </Layout>
+    </>
   );
 }
